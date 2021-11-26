@@ -3,7 +3,7 @@
 
 int main()
 {
-    FILE* stream=fopen("/home/murthu/Downloads/sample.txt","r");
+    FILE* stream=fopen("../files/sample.txt","r");
     char* res=NULL;
 
     
