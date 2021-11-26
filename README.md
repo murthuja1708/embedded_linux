@@ -7,3 +7,6 @@
 
 ##  Day-2
     proc file details and uname commands on raspberrypi and gnu tools like makefile,objdump.
+
+##  Day-3
+    static and dynamic libraries, fork(process id's )
