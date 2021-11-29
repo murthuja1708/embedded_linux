@@ -13,6 +13,6 @@
 
 ##  Day-4
     - library call vs syscalls 
-    - Assignment on library calls
+    - Assignment on system calls
 
       
