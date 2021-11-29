@@ -10,3 +10,9 @@
 
 ##  Day-3
     static and dynamic libraries, fork(process id's )
+
+##  Day-4
+    - library call vs syscalls 
+    - Assignment on library calls
+
+      
