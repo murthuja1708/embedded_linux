@@ -2,7 +2,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#define _SIZE 1024
+#define _SIZE 512
 
 void _cp(const char*,const char*);
 

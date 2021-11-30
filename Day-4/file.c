@@ -1,6 +1,5 @@
 #include "file.h"
 
-
 int print(const char* str)
 {
     size_t len=0;
@@ -10,10 +9,10 @@ int print(const char* str)
         ++len;
         temp++;
     }
-    
     int nwrite=write(1,str,len);
     return nwrite;
 }
+
 
 
 
@@ -38,19 +37,21 @@ void _cp(const char* src_file_path,const char* dest_file_path)
     
 
     ssize_t nread=0;
-    int i=0;
     int nwrite=0;
     while ((nread=read(fdr,buffer,_SIZE))!=0)
     {
-        nwrite=write(fdw,buffer,_SIZE);
+        nwrite=write(fdw,buffer,nread);
         if(nwrite == -1)
         {
             break;
         }
         buffer[0]='\0';
+        
     }
     close(fdw);
     close(fdr);
+
+    return;
     
     
 }
