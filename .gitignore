@@ -1,3 +1,5 @@
 /bin
 /Day-*/.gdb_history
 /Day-*/*.o
+/files/*.md
+/files/images
