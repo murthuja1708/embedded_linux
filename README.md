@@ -18,7 +18,7 @@
 *   **Day-4**
     *   library call vs syscalls 
     *   Assignments
-        *   system calls
+        *   copying file using system calls
 
 *   **Day-5**
     *   fork   
