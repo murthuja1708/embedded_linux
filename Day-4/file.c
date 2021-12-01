@@ -1,5 +1,7 @@
 #include "file.h"
 
+
+
 int print(const char* str)
 {
     size_t len=0;
@@ -14,7 +16,28 @@ int print(const char* str)
 }
 
 
+int write_all_nbytes(int fd,void* buffer,ssize_t nbytes)
+{
 
+    ssize_t bytes_to_be_written=nbytes;
+    ssize_t nwrite=0;
+    size_t total_written=0;
+    while (bytes_to_be_written>0)
+    {
+        nwrite=write(fd,buffer+total_written,bytes_to_be_written);
+        if(nwrite==-1)
+        {
+            print("error while writing data\n");
+            break;
+        }
+        total_written+=nwrite;
+        bytes_to_be_written-=nwrite;
+    }
+    
+
+    return  total_written;;
+    
+}
 
 void _cp(const char* src_file_path,const char* dest_file_path)
 {
@@ -37,16 +60,12 @@ void _cp(const char* src_file_path,const char* dest_file_path)
     
 
     ssize_t nread=0;
-    int nwrite=0;
-    while ((nread=read(fdr,buffer,_SIZE))!=0)
+    ssize_t nwrite=0;
+    ssize_t total_written;
+    while ((nread=read(fdr,buffer,(size_t)READ_SIZE))!=0)
     {
-        nwrite=write(fdw,buffer,nread);
-        if(nwrite == -1)
-        {
-            break;
-        }
+        total_written=write_all_nbytes(fdw,buffer,nread);
         buffer[0]='\0';
-        
     }
     close(fdw);
     close(fdr);
