@@ -28,3 +28,10 @@
     *   Assignments
         *   Addition of two numbers  and printing result using pipes
 
+*   **Day-6**
+    *   context switching(between processes)
+    *   threads basics
+    *   Assignments
+        *   create two threads hello & bye
+
+
