@@ -104,7 +104,7 @@ int main(int argc,char* argv[])
                 
             }
             else{
-                
+                size_t len=strlen(user_input);
                 nwrite=write_all_nbytes(fd1[1],user_input,len-1);
                 
                 int status;
