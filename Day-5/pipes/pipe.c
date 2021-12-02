@@ -47,5 +47,8 @@ int main(int argc,char* argv[])
         printf("res is %d\n",res);
         printf("parent process done\n");
     }
+    close(fd1);
+    close(fd2);
+    
     return 1;
 }
