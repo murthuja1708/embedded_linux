@@ -7,7 +7,8 @@
 #include<ctype.h>
 
 #define CMD_SIZE 100
-
+#define READ 0
+#define WRITE 1
 
 
 
@@ -41,28 +42,30 @@ int main(int argc,char* argv[])
 
     char user_input[CMD_SIZE]={'\0'};
     size_t nwrite;
-    while(1)
-    {
-        fprintf(stderr,"%s","shell$");
-        fgets(user_input,CMD_SIZE,stdin);
-        
 
-        if(strncmp(user_input,"exit",4)==0)
+        int fd1[2];
+        pipe(fd1);
+        pid_t id;
+
+        while (1)
         {
-            return 1;
-        }
-        else{
-            int fd1[2];
-            pipe(fd1);
-            pid_t id=fork();
-        
+            fprintf(stderr,"%s","shell$");
+            fgets(user_input,CMD_SIZE,stdin);
+            
+
+            if(strncmp(user_input,"exit",4)==0)
+            {
+                return 1;
+            }
+            size_t len=strlen(user_input);
+            id=fork();
             if(id == 0)
             {
                 char file_path[CMD_SIZE+5]="/bin/";
                 char user_string_buff[CMD_SIZE]={'\0'};
                 int nread;
 
-                nread=read(fd1[0],user_string_buff,CMD_SIZE);
+                nread=read(fd1[READ],user_string_buff,CMD_SIZE);
 
                 char *args[10]; //10 arguments of length 10 each
 
@@ -96,25 +99,22 @@ int main(int argc,char* argv[])
                 else{
                     execv(file_path,args+1);
                 }
+            
                 for (size_t i = 0; i < num_args; i++)
                 {
                     free(args[i]);
-                }
-                
-                
+                }       
             }
             else{
-                size_t len=strlen(user_input);
-                nwrite=write_all_nbytes(fd1[1],user_input,len-1);
+                nwrite=write_all_nbytes(fd1[WRITE],user_input,len-1);
                 
                 int status;
                 wait(&status);
                 printf("status is %d\n",status);
             }
-            close(fd1[0]);
-            close(fd1[1]);
         }
-         
-    }
+        close(fd1[WRITE]);
+        close(fd1[READ]);
+            
     return 0;
 }
