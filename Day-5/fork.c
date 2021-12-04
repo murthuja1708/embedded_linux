@@ -6,7 +6,8 @@
 #include<sys/wait.h>
 #include<ctype.h>
 
-#define CMD_SIZE 100
+#define CMD_SIZE 200
+#define PARAM_SIZE 20
 #define READ 0
 #define WRITE 1
 
@@ -57,7 +58,6 @@ int main(int argc,char* argv[])
             {
                 return 1;
             }
-            size_t len=strlen(user_input);
             id=fork();
             if(id == 0)
             {
@@ -67,9 +67,9 @@ int main(int argc,char* argv[])
 
                 nread=read(fd1[READ],user_string_buff,CMD_SIZE);
 
-                char *args[10]; //10 arguments of length 10 each
+                char *args[PARAM_SIZE]; //* to arguments of length PARAM_SIZE each
 
-                char command[10];
+                char command[PARAM_SIZE];
                 size_t num_args=0;
                 size_t len=0;
                 
@@ -84,21 +84,17 @@ int main(int argc,char* argv[])
                         len+=1;
                     }
                     command[len]='\0';
-                    args[num_args]=(char*)malloc(sizeof(char)*10);
+                    args[num_args]=(char*)malloc(sizeof(char)*PARAM_SIZE);
                     strncpy(args[num_args],command,len);
                     len=0;
                     num_args++;
                 }
                 
-                strncat(file_path,args[0],10);
+                strncat(file_path,args[0],PARAM_SIZE);
 
-                if(num_args==1)
-                {
-                    execl(file_path,file_path,NULL);
-                }
-                else{
-                    execv(file_path,args+1);
-                }
+                args[num_args]=NULL;
+
+                execv(file_path,args);
             
                 for (size_t i = 0; i < num_args; i++)
                 {
@@ -106,6 +102,7 @@ int main(int argc,char* argv[])
                 }       
             }
             else{
+                size_t len=strlen(user_input);
                 nwrite=write_all_nbytes(fd1[WRITE],user_input,len-1);
                 
                 int status;
