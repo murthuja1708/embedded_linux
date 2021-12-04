@@ -2,35 +2,34 @@
 #include<pthread.h>
 #include<stdlib.h>
 
-void* hello(void* temp)
-{
-    printf("hello %s\n",(char*)temp);
-}
+#define NAME_SIZE 100
 
-void* bye(void* temp)
+char name[NAME_SIZE]={'\0'};
+
+void* greet(void* greet_string)
 {
-    printf("bye %s\n",(char*)temp);
+    fprintf(stderr,"%s","please enter name:");
+    if(fgets(name,NAME_SIZE,stdin) == NULL)
+    {
+        return NULL;
+    }
+    printf("%s %s\n",(char*)greet_string,name);
 }
 
 int main(int argc,char* argv[])
 {
     if(argc>1)
     {
-        pthread_t helloId,bye_Id;
+        pthread_t greetId;
 
-        pthread_create(&helloId,NULL,hello,argv[1]);
+        pthread_create(&greetId,NULL,greet,argv[1]);
 
-        pthread_create(&bye_Id,NULL,bye,argv[1]);
 
-        fprintf(stderr,"waiting for hello thread\n");
+        fprintf(stderr,"waiting for greet thread\n");
 
-        pthread_join(helloId,NULL);
+        pthread_join(greetId,NULL);
 
-        fprintf(stderr,"hello thread is joined\n");
-        
-        pthread_join(bye_Id,NULL);
-
-        fprintf(stderr,"bye thread is joined\n");
+        fprintf(stderr,"greet thread is joined\n");
 
     }
     else{
