@@ -27,4 +27,5 @@
         *   Named Pipes (mkfifo command)
     *   Assignments
         *   Addition of two numbers  and printing result using pipes
+        *   creating a shell(like bash shell) using fork and exec API's
 
