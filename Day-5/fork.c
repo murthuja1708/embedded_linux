@@ -8,6 +8,7 @@
 
 #define CMD_SIZE 200
 #define PARAM_SIZE 20
+#define NO_OF_ARGS 10
 #define READ 0
 #define WRITE 1
 
@@ -47,6 +48,7 @@ int main(int argc,char* argv[])
         int fd1[2];
         pipe(fd1);
         pid_t id;
+        int return_status;
 
         while (1)
         {
@@ -56,62 +58,84 @@ int main(int argc,char* argv[])
 
             if(strncmp(user_input,"exit",4)==0)
             {
-                return 1;
+                break;
             }
+            else if(strncmp(user_input,"\n",1)==0)
+            {
+                continue;
+            }
+            
             id=fork();
             if(id == 0)
             {
-                char file_path[CMD_SIZE+5]="/bin/";
-                char user_string_buff[CMD_SIZE]={'\0'};
                 int nread;
-
+                char* user_string_buff=(char*)calloc(CMD_SIZE,sizeof(char));
+            
                 nread=read(fd1[READ],user_string_buff,CMD_SIZE);
 
-                char *args[PARAM_SIZE]; //* to arguments of length PARAM_SIZE each
+                
+                char *args[NO_OF_ARGS]={NULL}; //* to arguments of length PARAM_SIZE each
 
-                char command[PARAM_SIZE];
+                char* command=(char*)calloc(PARAM_SIZE,sizeof(char));
+
                 size_t num_args=0;
-                size_t len=0;
-                
-                printf("userstring we got is %s\n",user_string_buff);
+                //since user_string_buff gets modified by strsep function we are pointing to data
 
-                for (size_t i = 0; user_string_buff[i]!='\0'; i++)
+                while ((command=strsep(&user_string_buff," "))!=NULL)
                 {
-                    while (!isspace(user_string_buff[i]) && user_string_buff[i]!='\0')
-                    {
-                        command[len]=user_string_buff[i];
-                        i+=1;
-                        len+=1;
-                    }
-                    command[len]='\0';
-                    args[num_args]=(char*)malloc(sizeof(char)*PARAM_SIZE);
-                    strncpy(args[num_args],command,len);
-                    len=0;
-                    num_args++;
+                     args[num_args]=(char*)calloc(PARAM_SIZE,sizeof(char));
+                     args[num_args]=strdup(command);
+                     num_args++;
                 }
-                
-                strncat(file_path,args[0],PARAM_SIZE);
+
 
                 args[num_args]=NULL;
 
-                execv(file_path,args);
-            
+                if(execvp(args[0],args)==-1)
+                {
+                    perror("error");
+                    
+                    return_status=0;
+                }
+                else{
+                    return_status=1;
+                }
+
+
                 for (size_t i = 0; i < num_args; i++)
                 {
                     free(args[i]);
-                }       
+                    
+                }
+                free(command);
+                
+                free(user_string_buff);
+                
+
+
+                return return_status;
             }
             else{
+
                 size_t len=strlen(user_input);
                 nwrite=write_all_nbytes(fd1[WRITE],user_input,len-1);
                 
                 int status;
                 wait(&status);
-                printf("status is %d\n",status);
+                if(WIFEXITED(status))
+                {
+                    switch (status)
+                    {
+                    case 0:
+                        break;
+                    default:
+                        printf("status is %d\n",status);
+                    }
+                }
             }
         }
         close(fd1[WRITE]);
         close(fd1[READ]);
             
-    return 0;
+    return 1;
 }
