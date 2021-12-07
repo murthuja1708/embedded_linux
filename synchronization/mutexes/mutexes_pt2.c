@@ -12,7 +12,6 @@ struct timespec mutex_wait_time;
 size_t count=10;
 
 
-
 void _double(FILE* fptr)
 {
     if(pthread_mutex_timedlock(&CountMutex,&mutex_wait_time)==0)

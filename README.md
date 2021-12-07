@@ -25,6 +25,9 @@
     *   InterProcessCommunication
         *   Pipes
         *   Named Pipes (mkfifo command)
+        *   shared memories
+        *   message queues
+
     *   Assignments
         *   Addition of two numbers  and printing result using pipes
         *   creating a shell(like bash shell) using fork and exec API's
@@ -35,4 +38,21 @@
     *   Assignments
         *   create two threads hello & bye
 
+*   **synchronization**
+    *   mutexes
+        *   Fast Mutex(Futex)
+        *   Recursive Mutex
+        *   Adaptive Mutex
+        *   ErrorCheck Mutex
+    *   semaphores
+        *   Binary Semaphores
+            *   Mutual Exclusion Semaphores
+            *   signalling
+        *   Counting semaphores
+            *   Assignments
+                *   given 4 arrays of 2 integers which is a resource pool create following API's
+                *   get_buffer should give integer array which is available
+                *   release_buffer  should release  integer array
+        *   Barriers
+                
 
