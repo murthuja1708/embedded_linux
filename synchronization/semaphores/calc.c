@@ -17,14 +17,24 @@ static const char* operation_str[]={"","Add","Sub","Mul","Div"};
 sem_t numSem;
 sem_t procSem;
 
-/*static FILE* fptr=NULL;
-fptr=fopen("output_trylock.txt","w");*/
 
 
-void* process(void* opt)
+void* calculate(void* opt)
 {
-    sem_wait(&procSem);
+    
+    sem_wait(&procSem);//if 1 enters if 0 blocks and decrements the value
+    fprintf(stderr,"in the critical section\n");
     int choice=*((int*)opt);
+
+    fprintf(stderr,"please enter numbers to do %s\n",operation_str[choice]);
+    sem_wait(&numSem);
+    
+    scanf("%d",&a);
+    scanf("%d",&b);
+
+    
+    sem_post(&procSem);//increments the value and thread that blocked is woken up and locked again i..e decreased
+
     switch (choice)
     {
     case 1:
@@ -44,6 +54,7 @@ void* process(void* opt)
         break;
 
     }
+    fprintf(stderr,"releasing from the critical section\n");
     sem_post(&numSem);
 
     return &calc_res;
@@ -84,7 +95,7 @@ int main()
     pthread_t numId;
     
     sem_init(&numSem,0,1);
-    sem_init(&procSem,0,0);
+    sem_init(&procSem,0,1);
 
     void* res=malloc(sizeof(int)*1);
     while (1)
@@ -93,6 +104,7 @@ int main()
         scanf("%d",&opt);
         if(opt==5)
         {
+            res=NULL;
             break;
         }
         if(opt > 5 && opt < 1)
@@ -100,14 +112,7 @@ int main()
             printf("please enter valid option\n");
             continue;
         }
-        pthread_create(&numId,NULL,process,&opt);
-        fprintf(stderr,"please enter numbers to do %s\n",operation_str[opt]);
-        sem_wait(&numSem);
-        
-        scanf("%d",&a);
-        scanf("%d",&b);
-        
-        sem_post(&procSem);
+        pthread_create(&numId,NULL,calculate,&opt);
         
         pthread_join(numId,&res);
 
