@@ -20,7 +20,7 @@
     *   Assignments
         *   copying file using system calls
 
-*   **Day-5**
+*   **Processes**
     *   fork   
     *   InterProcessCommunication
         *   Pipes
@@ -31,8 +31,9 @@
     *   Assignments
         *   Addition of two numbers  and printing result using pipes
         *   creating a shell(like bash shell) using fork and exec API's
+        *   message queues and shared memories assignments
 
-*   **Day-6**
+*   **Threads**
     *   context switching(between processes)
     *   threads basics
     *   Assignments
@@ -49,10 +50,10 @@
             *   Mutual Exclusion Semaphores
             *   signalling
         *   Counting semaphores
-            *   Assignments
-                *   given 4 arrays of 2 integers which is a resource pool create following API's
-                *   get_buffer should give integer array which is available
-                *   release_buffer  should release  integer array
         *   Barriers
+        *   Assignments
+            *   given 4 arrays of 2 integers which is a resource pool create following API's
+            *   get_buffer api should give pointer to integer array which is available
+            *   release_buffer  should release  integer array
                 
 
