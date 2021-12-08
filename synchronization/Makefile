@@ -16,12 +16,15 @@ mutexes_pt2: mutexes_pt2.o
 mutexes_pt2.o: mutexes/mutexes_pt2.c
 	$(CC) $(FLAGS) -c mutexes/mutexes_pt2.c  -o mutexes_pt2.o
 
+#mutex semaphores
+
 mutex_sema: mutex_sema.o
 	$(CC) $(FLAGS) mutex_sema.o $(LIBS) -o ../bin/mutex_sema
 
 mutex_sema.o: semaphores/mutex_sema.c
 	$(CC) $(FLAGS) -c semaphores/mutex_sema.c  -o mutex_sema.o
 
+#signalling semaphores
 
 calc: calc.o
 	$(CC) $(FLAGS) calc.o $(LIBS) -o ../bin/calc
@@ -29,11 +32,18 @@ calc: calc.o
 calc.o: semaphores/calc.c
 	$(CC) $(FLAGS) -c semaphores/calc.c  -o calc.o
 
+#counting semaphores
+
 resource_mgmt: resource_mgmt.o
 	$(CC) $(FLAGS) resource_mgmt.o $(LIBS) -o ../bin/resource_mgmt
 
 resource_mgmt.o: semaphores/resource_mgmt.c
 	$(CC) $(FLAGS) -c semaphores/resource_mgmt.c  -o resource_mgmt.o
+
+#barriers
+
+barrier: barriers/barrier.c
+	$(CC) $(FLAGS) $< $(LIBS) -o ../bin/$@
 
 
 clean:
