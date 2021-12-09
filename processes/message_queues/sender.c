@@ -7,6 +7,7 @@
 #include<errno.h>
 #include<stdio.h>
 #include<unistd.h>
+#include<stdlib.h>
 
 #define MAX_MSG_SIZE  10
 #define MAX_NO_MSGS  6
@@ -19,10 +20,38 @@ const char* dummy_messages[MAX_NO_MSGS+1]={"hello",
                         NULL};
 const char **temp=dummy_messages;
 
-
-char* bye_string="bye\n";
-
 mqd_t msg_que;
+
+void errExit(const char* exitstatus)
+{
+    if(strncmp(exitstatus,"mq_open",7)==0)
+    {
+        exit(EXIT_FAILURE);
+    }
+    else if(strncmp(exitstatus,"mq_setattr",10)==0)
+    {
+        mq_close(msg_que);
+        fprintf(stderr,"couldnt set attributes\n");
+        exit(EXIT_FAILURE);
+    }
+    else if(strncmp(exitstatus,"mq_send",7)==0)
+    {
+        switch (errno)
+        {
+            case EAGAIN:
+                perror("error");
+                break;
+            case EINTR:
+                perror("error");
+                break;
+            
+            default:
+                break;
+        }
+    }
+}
+
+
 
 int main()
 {
@@ -34,24 +63,14 @@ int main()
 
     msg_que = mq_open("/msg_queue",(O_CREAT|O_RDWR),(S_IRUSR|S_IWUSR),&msg_attr);
 
+    
+
     size_t count=0;
     while(*temp!=NULL)
     {
         if(mq_send(msg_que,*temp,strlen(*temp),0)==-1)
         {
-            switch (errno)
-            {
-            case EAGAIN:
-                perror("wait for 5 seconds and send");
-                break;
-            case EINTR:
-                perror("error");
-                break;
-            
-            default:
-                break;
-            }
-            break;
+            errExit("mq_send");
         }
         else{
             count++;

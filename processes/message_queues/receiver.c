@@ -6,7 +6,7 @@
 #include<stdio.h>
 #include<errno.h>
 #include<string.h>
-
+#include<stdlib.h>
 
 #define MAX_MSG_SIZE  10
 #define MAX_NO_MSGS  6
@@ -15,6 +15,35 @@ char msg[10];
 int msg_prio;
 
 mqd_t msg_que;
+
+void errExit(const char* exitstatus)
+{
+    if(strncmp(exitstatus,"mq_open",7)==0)
+    {
+        exit(EXIT_FAILURE);
+    }
+    else if(strncmp(exitstatus,"mq_getattr",10)==0)
+    {
+        mq_close(msg_que);
+        fprintf(stderr,"couldnt get attributes\n");
+        exit(EXIT_FAILURE);
+    }
+    else if(strncmp(exitstatus,"mq_receive",10)==0)
+    {
+        switch (errno)
+        {
+        case EAGAIN:
+            perror("error");
+            break;
+        case EINTR:
+            perror("error");
+            break;
+        
+        default:
+            break;
+        }
+    }
+}
 
 int main()
 {
@@ -27,11 +56,14 @@ int main()
 
     msg_que = mq_open("/msg_queue",(O_CREAT|O_RDONLY),(S_IRUSR|S_IWUSR),&msg_attr);
 
-    
+    if(msg_que == (mqd_t) -1)
+    {
+        errExit("mq_open");
+    }
 
     if(mq_getattr(msg_que,&msg_attr)==-1)
     {
-        fprintf(stderr,"couldnt set attributes\n");
+        errExit("mq_getattr");
     }
 
     size_t count=msg_attr.mq_curmsgs;
@@ -45,19 +77,7 @@ int main()
         {
             if(mq_receive(msg_que,msg,MAX_MSG_SIZE,&msg_prio)==-1)
             {
-                switch (errno)
-                {
-                case EAGAIN:
-                    perror("error");
-                    break;
-                case EINTR:
-                    perror("error");
-                    break;
-                
-                default:
-                    break;
-                }
-                break;
+                errExit("mq_receive");
             }
             else{
                 fprintf(stderr,"msg read :%s\n",msg);
