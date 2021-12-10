@@ -20,14 +20,18 @@
     *   Assignments
         *   copying file using system calls
 
-*   **Day-5**
+*   **Processes**
     *   fork   
     *   InterProcessCommunication
         *   Pipes
         *   Named Pipes (mkfifo command)
+        *   shared memories
+        *   message queues
+
     *   Assignments
         *   Addition of two numbers  and printing result using pipes
         *   creating a shell(like bash shell) using fork and exec API's
+        * Assignments on shared memories and message_queues
 
 *   **Day-6**
     *   context switching(between processes)
