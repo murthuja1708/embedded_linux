@@ -41,7 +41,7 @@ arith_pipes.o: pipes/pipes.c
 
 #shared memories
 
-shared_memories: producer1 consumer1 producer2
+shared_memories: producer1 consumer1
 
 producer1:	shared_memories/producer1.c
 	$(CC) $(FLAGS) $< $(LIBS) $(EXLIBS) -o ../bin/$@
@@ -49,8 +49,6 @@ producer1:	shared_memories/producer1.c
 consumer1:	shared_memories/consumer1.c
 	$(CC) $(FLAGS) $< $(LIBS) $(EXLIBS) -o ../bin/$@
 
-producer2:	shared_memories/producer2.c
-	$(CC) $(FLAGS) $< $(LIBS) $(EXLIBS) -o ../bin/$@
 
 message_queues: sender receiver
 
