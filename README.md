@@ -31,12 +31,29 @@
     *   Assignments
         *   Addition of two numbers  and printing result using pipes
         *   creating a shell(like bash shell) using fork and exec API's
-        * Assignments on shared memories and message_queues
 
-*   **Day-6**
+
+*   **Threads**
     *   context switching(between processes)
     *   threads basics
     *   Assignments
         *   create two threads hello & bye
 
+*   **synchronization**
+    *   mutexes
+        *   Fast Mutex(Futex)
+        *   Recursive Mutex
+        *   Adaptive Mutex
+        *   ErrorCheck Mutex
+    *   semaphores
+        *   Binary Semaphores
+            *   Mutual Exclusion Semaphores
+            *   signalling
+        *   Counting semaphores
+        *   Barriers
+        *   Assignments
+            *   given 4 arrays of 2 integers which is a resource pool create following API's
+            *   get_buffer api should give pointer to integer array which is available
+            *   release_buffer  should release  integer array
+                
 

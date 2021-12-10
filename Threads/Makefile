@@ -9,5 +9,6 @@ thread.o: hello_thread.c
 	$(CC) $(FLAGS) -c hello_thread.c  -o thread.o
 
 
+
 clean:
-	rm *.o
+	rm *.o *.txt
