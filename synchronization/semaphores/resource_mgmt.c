@@ -59,7 +59,6 @@ void errExit(const char* exitstatus)
 }
 
 sem_t res_sema;
-sem_t res_index_sem;
 
 int get_sema_value()
 {
@@ -85,7 +84,6 @@ void* get_buffer()
     
     #if EXPERIMENT
         
-        sem_wait(&res_index_sem);
         printf("trying  to acquire resource\n");
         if(sem_wait(&res_sema) == 0)
         {
@@ -101,21 +99,21 @@ void* get_buffer()
             {
                 resource2=(int*)malloc(sizeof(int)*2);
                 res=resource2;
-                printf("assigned resource 1 %p\n",resource2);
+                printf("assigned resource 2 %p\n",resource2);
             }
 
             else if(resource3==NULL)//resource is not available
             {
                 resource3=(int*)malloc(sizeof(int)*2);
                 res=resource3;
-                printf("assigned resource 1 %p\n",resource3);
+                printf("assigned resource 3 %p\n",resource3);
             }
 
             else if(resource4==NULL)//resource is not available
             {
                 resource4=(int*)malloc(sizeof(int)*2);
                 res=resource4;
-                printf("assigned resource 1 %p\n",resource4);
+                printf("assigned resource 4 %p\n",resource4);
             }
         }
 
@@ -135,7 +133,6 @@ void* get_buffer()
             }
             res=NULL;    
         }
-        sem_post(&res_index_sem);
     #else
         sem_wait(&res_index_sem);
         _resource_index%=RESOURCE_COUNT;
@@ -176,30 +173,32 @@ void* release_buffer(void* addr)
 {
     if(addr)
     {
-        printf("freeing buffer %p\n",addr);
 
         if(resource1==addr)//resource is not available
         {
             printf("freeing first buffer\n");
-            free(addr);
+            free(resource1);
             resource1=NULL;
         }
 
         else if(resource2==addr)//resource is not available
         {
             printf("freeing second buffer\n");
+            free(resource2);
             resource2=NULL;
         }
 
         else if(resource3==addr)//resource is not available
         {
             printf("freeing third buffer\n");
+            free(resource3);
             resource3=NULL;
         }
 
         else if(resource4==addr)//resource is not available
         {
             printf("freeing fourth buffer\n");
+            free(resource4);
             resource4=NULL;
         }
         
@@ -235,7 +234,6 @@ int main(int argc,char* argv[])
     
     sem_init(&res_sema,0,INITIAL_SEMA_VALUE);
     
-    sem_init(&res_index_sem,0,1);
 
     void* resource_ptr[RESOURCE_COUNT]={NULL};
 
@@ -313,10 +311,6 @@ int main(int argc,char* argv[])
         if(sem_destroy(&res_sema)!=0);
         {
             errExit("sem_destroy");
-        }
-        if(sem_destroy(&res_index_sem)!=0)
-        {
-        errExit("sem_index_destroy");
         }
     
 
