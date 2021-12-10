@@ -1,5 +1,7 @@
 CC=gcc
 FLAGS=-ggdb
+LIBS=-lpthread
+EXLIBS=-lrt
 
 # named pipes build
 
@@ -36,5 +38,26 @@ arith_pipes: arith_pipes.o
 arith_pipes.o: pipes/pipes.c
 	gcc -c pipes/pipes.c -o arith_pipes.o
 
+
+#shared memories
+
+shared_memories: producer1 consumer1
+
+producer1:	shared_memories/producer1.c
+	$(CC) $(FLAGS) $< $(LIBS) $(EXLIBS) -o ../bin/$@
+
+consumer1:	shared_memories/consumer1.c
+	$(CC) $(FLAGS) $< $(LIBS) $(EXLIBS) -o ../bin/$@
+
+
+message_queues: sender receiver
+
+sender:	message_queues/sender.c
+	$(CC) $(FLAGS) $< $(LIBS) $(EXLIBS) -o ../bin/$@
+
+receiver:	message_queues/receiver.c
+	$(CC) $(FLAGS) $< $(LIBS) $(EXLIBS) -o ../bin/$@
+
+
 clean:
-	rm *.o
+	rm *.o ../bin/process_*

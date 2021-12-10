@@ -31,7 +31,7 @@
     *   Assignments
         *   Addition of two numbers  and printing result using pipes
         *   creating a shell(like bash shell) using fork and exec API's
-        *   message queues and shared memories assignments
+
 
 *   **Threads**
     *   context switching(between processes)
