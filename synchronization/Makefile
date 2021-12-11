@@ -40,6 +40,12 @@ resource_mgmt: resource_mgmt.o
 resource_mgmt.o: semaphores/resource_mgmt.c
 	$(CC) $(FLAGS) -c semaphores/resource_mgmt.c  -o resource_mgmt.o
 
+resource_mgmt_bkp: resource_mgmt_bkp.o
+	$(CC) $(FLAGS) $< $(LIBS) -o ../bin/$@
+
+resource_mgmt_bkp.o: semaphores/resource_mgmt_bkp.c
+	$(CC) $(FLAGS) -c $<  -o $@
+
 #barriers
 
 barrier: barriers/barrier.c
