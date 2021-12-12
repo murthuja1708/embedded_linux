@@ -50,27 +50,19 @@ int main()
             return 0;
         }
 
-    //sem_init(sem_cons,1,0);
-
-    char res[SHARED_MEMORY_SIZE][10]={"hello","man","murthu","jilani","tabbu","tannu","waste","quit"};
-    size_t len;
-    //while(1)
-    //{
-        for (size_t i = 0; i < 8; i++)
-        {
-            fprintf(stderr,"waiting for semaphore\n");
-            sem_wait(sem_prod);
-            len=strlen(res[i]);
-            addr[len]='\0';
-            fprintf(stderr,"acquired semaphore\n");
-            strncpy(addr,res[i],strlen(res[i])+1);
-            sem_post(sem_cons);
-        }
-
-    //}
     
-
-    //sem_init(shm_sema,1,2);
+    char res[11][SHARED_MEMORY_SIZE]={"Visual","Studio","Code","is a","lightweight","but powerful","source code","editor","which runs","quit"};
+    size_t len;
+    for (size_t i = 0; i < 11; i++)
+    {
+        fprintf(stderr,"waiting for semaphore\n");
+        sem_wait(sem_prod);
+        len=strlen(res[i]);
+        addr[len]='\0';
+        fprintf(stderr,"acquired semaphore\n");
+        strncpy(addr,res[i],strlen(res[i])+1);
+        sem_post(sem_cons);
+    }
     
     
     sem_close(sem_cons);

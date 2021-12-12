@@ -44,8 +44,6 @@ int main()
         return 0;
     }
 
-    //sem_init(sem_cons,1,0);
-
 
     sem_t* sem_prod=sem_open("/sema_prod",O_CREAT|O_RDWR,0660,1);
 
@@ -70,8 +68,7 @@ int main()
         {
             break;
         }
-        sleep(2);
-        //sem_post(sem_prod);
+        sem_post(sem_prod);
 
     }
 
