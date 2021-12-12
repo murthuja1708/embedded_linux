@@ -8,32 +8,25 @@
 #include<limits.h>
 #include<errno.h>
 #include<string.h>
+#include<sys/syscall.h>
 
 
 
-#define RESOURCE_COUNT   4
-#define THREAD_COUNT     10
+#define RESOURCE_COUNT   3
+#define THREAD_COUNT     5
 #define INITIAL_SEMA_VALUE RESOURCE_COUNT
-#define ROWS 4
-#define COLS 2
-#define EXPERIMENT 1   //working
 
-#if EXPERIMENT
-    int *resource1=NULL;
-    int *resource2=NULL;
-    int *resource3=NULL;
-    int *resource4=NULL;
 
-#else 
 int **resource;
 void init_resource()
 {
     resource=(int**)malloc(sizeof(int)*RESOURCE_COUNT);
 }
 
-#endif
 
+pthread_mutex_t index_mutex;
 static int _resource_index=0;
+
 
 void errExit(const char* exitstatus)
 {
@@ -58,261 +51,129 @@ void errExit(const char* exitstatus)
     }
 }
 
-sem_t res_sema;
+sem_t res_get_sema;
+sem_t res_rel_sema;
 
-int get_sema_value()
+
+void* resource_occupency()
 {
-    int sem_value;
 
-    if(sem_getvalue(&res_sema,&sem_value)==0)
-    {
-        return sem_value;
-    }
-    else{
-        perror("error while getting sem value\n:");
-        return -INT_MAX;
-    }
-    
 }
-
 
 void* get_buffer()
 {
+    pid_t thread_id=syscall(__NR_gettid);
     int* res=NULL;
-
-    printf("sema value in get buffer %d\n",get_sema_value());
     
-    #if EXPERIMENT
-        
-        printf("trying  to acquire resource\n");
-        if(sem_wait(&res_sema) == 0)
+    fprintf(stderr,"waiting for thread %d\n",thread_id);
+    
+    if(sem_wait(&res_get_sema) == 0)
+    {
+        for (size_t i = 0; i < RESOURCE_COUNT; i++)
         {
+            pthread_mutex_lock(&index_mutex);
+            resource[_resource_index]=(int*)malloc(sizeof(int)*2);
+            fprintf(stderr,"assigned resource %d  %p for thread id %d\n",_resource_index,resource[_resource_index],thread_id);
             
-            if(resource1==NULL)//resource is not available
-            {
-                resource1=(int*)malloc(sizeof(int)*2);
-                res=resource1;
-                printf("assigned resource 1 %p\n",resource1);
-            }
+            fprintf(stderr,"enter two numbers\n");
 
-            else if(resource2==NULL)//resource is not available
-            {
-                resource2=(int*)malloc(sizeof(int)*2);
-                res=resource2;
-                printf("assigned resource 2 %p\n",resource2);
-            }
+            scanf("%d",&resource[_resource_index][0]);
+            scanf("%d",&resource[_resource_index][1]);
 
-            else if(resource3==NULL)//resource is not available
-            {
-                resource3=(int*)malloc(sizeof(int)*2);
-                res=resource3;
-                printf("assigned resource 3 %p\n",resource3);
-            }
-
-            else if(resource4==NULL)//resource is not available
-            {
-                resource4=(int*)malloc(sizeof(int)*2);
-                res=resource4;
-                printf("assigned resource 4 %p\n",resource4);
-            }
+            res=resource[_resource_index];
+            _resource_index =(_resource_index+1)%RESOURCE_COUNT;
+            pthread_mutex_unlock(&index_mutex);
+            fprintf(stderr,"index posting at thread %d\n",thread_id);
+            return res;
         }
+    }
 
-        else
-        {
-            switch (errno)
-            {
-            case EINVAL:
-                perror("--------error in sem wait\n--------");
-                break;
-            case EAGAIN:
-                perror("--------error in sem wait:------");
-                break;
-            default:
-                perror("-----error:------");
-                break;
-            }
-            res=NULL;    
-        }
-    #else
-        sem_wait(&res_index_sem);
-        _resource_index%=RESOURCE_COUNT;
-        if(sem_wait(&res_sema) == 0)
-        {
-            int a;
-            for (size_t i = _resource_index; i < RESOURCE_COUNT; i++)
-            {
-                if(resource[_resource_index]==NULL)//resource is available
-                {
-                    resource[_resource_index]=(int*)malloc(sizeof(int)*2);
-                    printf("enter two numbers\n");
-                    scanf("%d",&a);
-                    resource[_resource_index][0]=a;
-                    scanf("%d",&a);
-                    resource[_resource_index][1]=a;
-                    res=resource[_resource_index];
-                    break;
-                }
-                
-            }
-            sem_post(&res_index_sem);
-        }
+    else
+    {
+        errExit("sem_wait");
+        res=NULL;    
+    }
 
-        else
-        {
-            res=NULL;    
-        }
-    #endif
-        
-    printf("sending resource\n");
-
-    return res;
 }
 
 
 void* release_buffer(void* addr)
 {
-    if(addr)
+    fprintf(stderr,"waiting for data to fill\n");
+    sem_wait(&res_rel_sema);
+    
+    int value;
+    if(addr!=NULL)
     {
-
-        if(resource1==addr)//resource is not available
-        {
-            printf("freeing first buffer\n");
-            free(resource1);
-            resource1=NULL;
-        }
-
-        else if(resource2==addr)//resource is not available
-        {
-            printf("freeing second buffer\n");
-            free(resource2);
-            resource2=NULL;
-        }
-
-        else if(resource3==addr)//resource is not available
-        {
-            printf("freeing third buffer\n");
-            free(resource3);
-            resource3=NULL;
-        }
-
-        else if(resource4==addr)//resource is not available
-        {
-            printf("freeing fourth buffer\n");
-            free(resource4);
-            resource4=NULL;
-        }
-        
-
-        sem_post(&res_sema);////increments the value and thread that blocked is woken up and locked again i..e decreased
-        printf("sema value after release %d\n",get_sema_value());
+        fprintf(stderr,"releasing %p\n",addr);
+        free(addr);
     }
     else{
-        printf("invalid address\n");
+        fprintf(stderr,"got null while trying to release buffer\n");
     }
+    sem_post(&res_get_sema);
+        
 }
 
 int main(int argc,char* argv[])
 {
-    #if EXPERIMENT
-        pthread_t BufferTid1;
-        pthread_t BufferTid2;
-        pthread_t BufferTid3;
-        pthread_t BufferTid4;
-        pthread_t BufferTid5;
-        pthread_t BufferTid6;
-        pthread_t BufferTid7;
-    #else 
-        init_resource();
-        pthread_t BufferTid[THREAD_COUNT];
-    #endif
-
-    //initializing unnamed semaphores
-
+    init_resource();
     
-     //initializing unnamed semaphores
+    pthread_t BufferTid[THREAD_COUNT];
+    pthread_t BufferRelTid[THREAD_COUNT];
 
-    
-    sem_init(&res_sema,0,INITIAL_SEMA_VALUE);
-    
+    sem_init(&res_get_sema,0,INITIAL_SEMA_VALUE);
+
+    sem_init(&res_rel_sema,0,0);
 
     void* resource_ptr[RESOURCE_COUNT]={NULL};
 
     //creating 10 threads
 
+    int err;
     
-    //joining the threads
-    
-    #if EXPERIMENT
-
-        pthread_create(&BufferTid1,NULL,get_buffer,NULL);
-        pthread_create(&BufferTid2,NULL,get_buffer,NULL);
-        pthread_create(&BufferTid3,NULL,get_buffer,NULL);
-        pthread_create(&BufferTid4,NULL,get_buffer,NULL);
-        pthread_create(&BufferTid5,NULL,get_buffer,NULL);
-        pthread_create(&BufferTid6,NULL,get_buffer,NULL);
-        pthread_create(&BufferTid7,NULL,get_buffer,NULL);
-
-    #else
-        for (size_t i = 0; i < THREAD_COUNT; i++)
+    for (size_t i = 0; i < THREAD_COUNT; i++)
+    {
+        err=pthread_create(&BufferTid[i],NULL,get_buffer,NULL);
+        if(err!=0)
         {
-            pthread_create(&BufferTid[i],NULL,get_buffer,NULL);
+            perror("error while creating get buffer thread\n");
         }
         
-    #endif
+    }
 
-     printf("-----------------------------\n");
     //joining the threads
-    
-    int sem_value;
-    #if EXPERIMENT
-        printf("joining thread 1\n");
-        pthread_join(BufferTid1,&resource_ptr[0]);
-        release_buffer(resource_ptr[0]);
-        printf("joining thread 2\n");
-        pthread_join(BufferTid2,&resource_ptr[1]);
-        release_buffer(resource_ptr[1]);
-        printf("joining thread 3\n");
-        pthread_join(BufferTid3,&resource_ptr[2]);
-        release_buffer(resource_ptr[2]);
-        printf("joining thread 4\n");
-        pthread_join(BufferTid4,&resource_ptr[3]);
-        release_buffer(resource_ptr[3]);
-        printf("joining thread 5\n");
-        pthread_join(BufferTid5,&resource_ptr[4]);
-        release_buffer(resource_ptr[4]);
-        printf("joining thread 6\n");
-        pthread_join(BufferTid6,&resource_ptr[5]);
-        release_buffer(resource_ptr[5]);
-        printf("joining thread 7\n");
-        pthread_join(BufferTid7,&resource_ptr[6]);
-        release_buffer(resource_ptr[6]);
+    fprintf(stderr,"joining threads\n");
 
-
-        printf("---------released all buffers-----------\n");
-        
-    #else
-        for (size_t i = 0; i < THREAD_COUNT; i++)
+    for(size_t j=0;j<THREAD_COUNT;j++)
+    {
+        pthread_join(BufferTid[j],&resource_ptr[j]);
+        fprintf(stderr,"address we got %p\n",resource_ptr[j]);
+        err=pthread_create(&BufferRelTid[j],NULL,release_buffer,resource_ptr[j]);
+        if(err!=0)
         {
-            
-                pthread_join(BufferTid[i],&resource_ptr[i]);
-                if(resource_ptr[i]!=NULL)
-                {
-                    fprintf(stderr,"address of buffer is %p and values are %d and %d\n",(int*)resource_ptr[i],*(int*)resource_ptr[i],*((int*)resource_ptr[i]+1));
-                    release_buffer(resource_ptr[i]);
-                }
-                else{
-                    fprintf(stderr,"couldnt get the buffer....\n");
-                }
-            
+            perror("error while creating get buffer thread\n");
         }
+        sem_post(&res_rel_sema);
 
-    #endif
+    }
+    //joining the threads
 
-        if(sem_destroy(&res_sema)!=0);
-        {
-            errExit("sem_destroy");
-        }
+    for(size_t j=0;j<THREAD_COUNT;j++)
+    {
+        pthread_join(BufferRelTid[j],NULL);
+    }
     
+
+    if(sem_destroy(&res_get_sema)!=0);
+    {
+        errExit("sem_destroy");
+    }
+    
+      if(sem_destroy(&res_rel_sema)!=0);
+    {
+        errExit("sem_destroy");
+    }
 
     
     return 0;
