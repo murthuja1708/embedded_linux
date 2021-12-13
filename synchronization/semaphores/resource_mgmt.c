@@ -65,27 +65,22 @@ void* get_buffer()
     pid_t thread_id=syscall(__NR_gettid);
     int* res=NULL;
     
-    fprintf(stderr,"waiting for thread %d\n",thread_id);
     
     if(sem_wait(&res_get_sema) == 0)
     {
-        for (size_t i = 0; i < RESOURCE_COUNT; i++)
-        {
-            pthread_mutex_lock(&index_mutex);
-            resource[_resource_index]=(int*)malloc(sizeof(int)*2);
-            fprintf(stderr,"assigned resource %d  %p for thread id %d\n",_resource_index,resource[_resource_index],thread_id);
-            
-            fprintf(stderr,"enter two numbers\n");
+        pthread_mutex_lock(&index_mutex);
+        resource[_resource_index]=(int*)malloc(sizeof(int)*2);
+        fprintf(stderr,"assigned resource %d  %p for thread id %d\n",_resource_index,resource[_resource_index],thread_id);
+        
 
-            scanf("%d",&resource[_resource_index][0]);
-            scanf("%d",&resource[_resource_index][1]);
+        resource[_resource_index][0]=10;
+        resource[_resource_index][1]=12;
 
-            res=resource[_resource_index];
-            _resource_index =(_resource_index+1)%RESOURCE_COUNT;
-            pthread_mutex_unlock(&index_mutex);
-            fprintf(stderr,"index posting at thread %d\n",thread_id);
-            return res;
-        }
+        res=resource[_resource_index];
+        _resource_index =(_resource_index+1)%RESOURCE_COUNT;
+        pthread_mutex_unlock(&index_mutex);
+
+        return res;
     }
 
     else
@@ -99,13 +94,12 @@ void* get_buffer()
 
 void* release_buffer(void* addr)
 {
-    fprintf(stderr,"waiting for data to fill\n");
     sem_wait(&res_rel_sema);
     
     int value;
     if(addr!=NULL)
     {
-        fprintf(stderr,"releasing %p\n",addr);
+        fprintf(stdout,"releasing %p\n",addr);
         free(addr);
     }
     else{
@@ -118,6 +112,8 @@ void* release_buffer(void* addr)
 int main(int argc,char* argv[])
 {
     init_resource();
+
+    pthread_mutex_init(&index_mutex,NULL);
     
     pthread_t BufferTid[THREAD_COUNT];
     pthread_t BufferRelTid[THREAD_COUNT];
@@ -142,13 +138,10 @@ int main(int argc,char* argv[])
         
     }
 
-    //joining the threads
-    fprintf(stderr,"joining threads\n");
-
     for(size_t j=0;j<THREAD_COUNT;j++)
     {
         pthread_join(BufferTid[j],&resource_ptr[j]);
-        fprintf(stderr,"address we got %p\n",resource_ptr[j]);
+        
         err=pthread_create(&BufferRelTid[j],NULL,release_buffer,resource_ptr[j]);
         if(err!=0)
         {
@@ -157,6 +150,12 @@ int main(int argc,char* argv[])
         sem_post(&res_rel_sema);
 
     }  
+
+    for (size_t i = 0; i < THREAD_COUNT; i++)
+    {
+        pthread_join(BufferRelTid[i],NULL);
+    }
+    
 
     if(sem_destroy(&res_get_sema)!=0);
     {
@@ -167,6 +166,7 @@ int main(int argc,char* argv[])
     {
         errExit("sem_destroy");
     }
+    pthread_mutex_destroy(&index_mutex);
 
     
     return 0;
