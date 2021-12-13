@@ -156,14 +156,7 @@ int main(int argc,char* argv[])
         }
         sem_post(&res_rel_sema);
 
-    }
-    //joining the threads
-
-    for(size_t j=0;j<THREAD_COUNT;j++)
-    {
-        pthread_join(BufferRelTid[j],NULL);
-    }
-    
+    }  
 
     if(sem_destroy(&res_get_sema)!=0);
     {
