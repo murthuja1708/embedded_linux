@@ -54,13 +54,13 @@ int main()
     msg_que = mq_open("/msg_queue",(O_CREAT|O_RDWR),(S_IRUSR|S_IWUSR),&msg_attr);
     if(msg_que == (mqd_t)-1)
     {
-        perror("error");
+        perror("error in opening msg_queue");
     }
     
-    int fd=open("dictionary.txt",O_RDONLY);
+    int fd=open("../files/dictionary.txt",O_RDONLY);
     if(fd == -1)
     {
-        perror("error");
+        perror("error in opening dictionary.txt");
         exit(EXIT_FAILURE);
     }
 
@@ -100,10 +100,10 @@ int main()
                     j++;
                 }
             }
-            printf("block we got %s\n and len is %ld\n",block,strlen(block));
             memset(block,'\0',BLOCKSIZE);
         }
         else{
+            break;
             perror("error");
         }
         }
