@@ -25,6 +25,7 @@ int main(int argc,char* argv[])
         int nread;
         int a,b;
         nread=read(fd1[READ],(int*)&a,sizeof(int));
+        
         nread=read(fd1[READ],(int*)&b,sizeof(int));
         int res;
         res=a+b;
