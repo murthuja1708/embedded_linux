@@ -19,7 +19,7 @@ char* addr;
 
 int main()
 {
-    FILE* fptr=fopen("dictionary.txt","r");
+    FILE* fptr=fopen("../files/dictionary.txt","r");
     int shm_fd=shm_open("/imp_data",O_RDWR|O_CREAT,S_IRUSR|S_IWUSR);
     if(shm_fd == -1)
     {
@@ -58,11 +58,12 @@ int main()
     {
         if(buffer[0] == 'm')
         {
-            fprintf(stderr,"waiting for semaphore\n");
+            
             sem_wait(sem_prod);
             len=strlen(buffer);
-            addr[len]='\0';
-            fprintf(stderr,"acquired semaphore\n");
+            --len;
+            buffer[len]='\0';
+            
             strncpy(addr,buffer,len);
             sem_post(sem_cons);
         }
