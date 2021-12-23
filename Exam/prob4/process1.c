@@ -33,10 +33,25 @@ int write_all_nbytes(int fd,void* buffer,ssize_t nbytes)
 
 int main()
 {
-    FILE* fptr=fopen("dictionary.txt","r");
+    FILE* fptr=fopen("../files/dictionary.txt","r");
+    if(!fptr)
+    {
+        perror("error while opening dictionary.txt:");
+        return -1;
+    }
 
     printf("making fifo\n");
-   mkfifo("send_string",0660);
+   if(mkfifo("send_string",0660) == -1)
+   {
+       if (errno == EEXIST)
+       {
+           printf("fifo already exists\n");
+       }
+       else{
+           perror("error while creating named pipe:");
+           return -1;
+       }
+   }
 
     
     char str[100]={'\0'};

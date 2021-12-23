@@ -42,10 +42,7 @@ int main()
             break;
         }
         block[nread]='\0';
-
-        printf("%s\n",block);
-        
-        /*while(block[i]!='\0')
+        while(block[i]!='\0')
         {
             j=0;
             while(block[i]!='\n' && block[i]!='\0')
@@ -61,7 +58,7 @@ int main()
                 i++;
             }
             
-        }*/
+        }
         
         
         
