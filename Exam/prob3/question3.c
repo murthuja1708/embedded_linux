@@ -30,14 +30,17 @@ int main()
     int fd;
     char **arr;
 
-    FILE* fptr=fopen("dictionary.txt","r");
+    FILE* fptr=fopen("../files/dictionary.txt","r");
+    if(!fptr)
+    {
+        perror("error while opening dictionary.txt:");
+        return -1;
+    }
 
     size_t len=0;
     size_t total_strings=0;
     
     arr=malloc(MAX_MSGS*sizeof(char*));
-
-    FILE* fptr1=fopen("test.txt","w+");
     
     while(1)
     {
@@ -75,7 +78,6 @@ int main()
 
         for (size_t i = 0; i < total_strings; i++)
         {
-            fprintf(fptr1,"comparing %s and %s in child 1\n",search_key,arr[i]);
             if((strcmp(arr[i],search_key)==0))
             {
                 fprintf(stderr,"FOUND by child1\n");
@@ -111,7 +113,6 @@ int main()
 
             for (size_t i = total_strings-1 ; i > 0 ; i--)
             {
-                fprintf(fptr1,"comparing %s and %s in child 2\n",search_key,arr[i]);
                 if((strcmp(arr[i],search_key) == 0) )
                 {
 
@@ -135,7 +136,7 @@ int main()
             int wstatus;
             
 
-            fprintf(stderr,"enter a string\n");
+            fprintf(stderr,"enter a string to search in file\n");
             
 
             fgets(buffer,30,stdin);

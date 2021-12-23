@@ -10,7 +10,7 @@
 #include<semaphore.h>
 #include<stdlib.h>
 
-#define SHARED_MEMORY_SIZE  20
+#define SHARED_MEMORY_SIZE  30
 
 char* addr;
 
@@ -63,7 +63,8 @@ int main()
     while(1)
     {
         sem_wait(sem_cons);
-        printf("----%s,%ld-----\n",addr,strlen(addr));
+        printf("msg read:%s && len:%ld\n",addr,strlen(addr));
+        memset(addr,0,30);
         if(strncmp(addr,"quit",4)==0)
         {
             break;
