@@ -65,7 +65,7 @@ int main()
     {
         while (mq_receive(msg_que,msg,MAX_MSG_SIZE,&msg_prio)!=-1)
         {
-            fprintf(stderr,"msg read :%s\n",msg);
+            fprintf(stderr,"msg read :%s && msg_len :%ld\n",msg,strlen(msg));
             memset(msg,'\0',MAX_MSG_SIZE);
             count++;
         }
