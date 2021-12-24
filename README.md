@@ -56,7 +56,7 @@
             *   get_buffer api should give pointer to integer array which is available
             *   release_buffer  should release  integer array
 
-*   **Exam Question**
+*   **exam**
     *   4 question 4 folders.
     *   outer folder has Make file which can be used as shown below
     *   executables are created in problem folders
